@@ -19,13 +19,13 @@ For more information about the link provided here, see the *Work Distribution* a
 Applying filters on a certain kind of recurring objects is a common need in visual content creation. For instance, the image on the left side in the figure below applied color splash filter on balloons, in which all content are turned into grayscale except the balloons; and the image on the right side is clipped from a TV show, in which the passerby is blurred to protect his privacy. In both of these situations, visual content creators need to identify recurring objects when they deal with large amount of images, and apply filters on these specified objects.
 
 <p align="center">
-  <img src="./Figures/example.png" width="80%"/>
+  <img src="./Figures/example.png" width="100%"/>
 </p>
 
 However, identifying recurring objects on large amount of images is tedious. If we could make an algorithm to automatically identify the objects and apply image processing methods on them, visual content creators could be freed from repetitive work and focus more on the creations process. To solve the problem, we could roughly divide it into three different stages: Detecting the object and classify it, find the segmentation mask of the object, and do the image processing on the specified parts. The figure below illustrates the process.
 
 <p align="center">
-  <img src="./Figures/process.png" width="80%"/>
+  <img src="./Figures/process.png" width="100%"/>
 </p>
 
 ## Object Detection
@@ -43,7 +43,7 @@ After we find the object in the images, we could do some image processing on the
 Mask R-CNN is actually a framework for object instance segmentation. It extends Faster R-CNN, by adding a branch for predicting an object mask, in parallel with the existing branch for bounding box prediction. The mask could be easily trained for instance segmentation, and it could also be used for other tasks such as human pose detection. The structure of Mask R-CNN is illustrated below.
 
 <p align="center">
-  <img src="./Figures/r_cnn.png" width="80%"/>
+  <img src="./Figures/r_cnn.png" width="100%"/>
 </p>
 
 Mask R-CNN is roughly consisted of three parts: the Region Proposal Network (RPN), the bounding box regression and classification branch, and the mask generator branch, which are briefly explained below:
@@ -57,7 +57,7 @@ Mask R-CNN is roughly consisted of three parts: the Region Proposal Network (RPN
 Pre-trained models of Mask R-CNN could be easily found on the Internet, and these models are usually trained on a relatively large dataset, like COCO. However, if we directly apply those pre-trained model on user-specified images, it may lead to some problems. For instance, the Mask R-CNN model per-trained on COCO dataset would regard UW-Madison logo as a stop sign, which is illustrated below.
 
 <p align="center">
-  <img src="./Figures/wisc_logo.jpg" width="50%"/>
+  <img src="./Figures/wisc_logo.jpg" width="60%"/>
 </p>
 
 In conclusion, using pre-trained model will possibly cause some problems below:
@@ -79,7 +79,7 @@ I apply four different kinds of image processing methods: color splash, blurring
 Examples of each of these three effects are illustrated below. Color Splash is a image filter, after applying it only the specified object is kept in color; For pixelation the object will be pixelated; and for blurring the object will be blurred.
 
 <p align="center">
-  <img src="./Figures/effects.png" width="80%"/>
+  <img src="./Figures/effects.png" width="100%"/>
 </p>
 
 Implementing Color Splash filter is straight-forward. Firstly the whole image will be turned into the gray scale, and then the image will be merged with the  original image based on the object segmentation mask. For Pixelation and Blurring I follow the same idea - Firstly apply the image processing method on the whole image, then merge the processed image with the original image based on the object segmentation mask. For pixelation, I simply slide a rectangle window on the image, and replace all pixels in the window with the mean value of them. For blurring the image I apply median filter on the original image to get the blurred image.
@@ -89,7 +89,7 @@ Implementing Color Splash filter is straight-forward. Firstly the whole image wi
 Style Transfer is a technique proposed by Gatys et al. at 2015. In paper *A neural algorithm of artistic style* they proposed new metrices to compare the "style distance" and the "content distance" from the original image to the target image. An example of image style transferring is illustrated below.
 
 <p align="center">
-  <img src="./Figures/style_transfer.png" width="80%"/>
+  <img src="./Figures/style_transfer.png" width="100%"/>
 </p>
 
 At the left side, it is the original image; and in the middle there are two style images. If we regard the style distance and the content distance as the loss, and optimize to get a new image which minimize the style distance with the style image and the content distance with the content image, an new image could be got. The new image will keep the content in the original image, while the style will be similar to the style image. At the right side there are two images generated by the style transfer algorithm.
@@ -97,7 +97,7 @@ At the left side, it is the original image; and in the middle there are two styl
 How do they define the style loss and the content loss? The content distance is straight forward - they define the content loss to be the squared L2 distance between two feature maps, which could be got from a per-trained deep neural network like VGG. The content distance (or the loss) is defined as the formula above. For the style loss, things are a little bit complicated: they firstly compute the correlation between two different feature maps in the same layer, and use the result to construct a correlation matrix G, which is defined below. Then, they compute the squared l2 distance from the correlation matrix G of the style image to the correlation matrix G of the original image, and normalize the result to make sure it keeps the same scale with the content distance.
 
 <p align="center">
-  <img src="./Figures/style_loss.png" width="40%"/>
+  <img src="./Figures/style_loss.png" width="80%"/>
 </p>
 
 For generating the final image, in the original paper they start from a random noise image, and optimize the content loss and the style loss to get the final result. However, the whole process is really slow and may take several seconds to get a new image, which is acceptable when processing large amount of images or the video.
@@ -145,7 +145,7 @@ The stabilizer is not suitable for fast changing videos, so it could be disabled
 For fine-tuning the model, I set up running environment on a Google Cloud machine with a Nvidia K80 Graphics card included. I still use the COCO dataset for training, but this time I only use the image with person class included, and only train the model on the person class. As I specified to fine-tune some layers in the backbone network ResNet-101, it takes around 50 hours to finish and costs me $30. The fine tuned model removed unnecessary categories, and does improve the mask accuracy on person class. An example is illustrated below.
 
 <p align="center">
-  <img src="./Figures/mask_improve.png" width="80%"/>
+  <img src="./Figures/mask_improve.png" width="90%"/>
 </p>
 
 On the left side is the result from the per-trained model, in which the hand of the girl is not included in the mask. On the right side is the result from fine-tuned model, in which the mask is much more accurate.

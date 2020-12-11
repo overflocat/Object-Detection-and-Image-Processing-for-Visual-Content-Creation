@@ -19,7 +19,7 @@ For more information about the link provided here, see the *Work Distribution* a
 Applying filters on a certain kind of recurring objects is a common need in visual content creation. For instance, the image on the left side in the figure below applied color splash filter on balloons, in which all content are turned into grayscale except the balloons; and the image on the right side is clipped from a TV show, in which the passerby is blurred to protect his privacy. In both of these situations, visual content creators need to identify recurring objects when they deal with large amount of images, and apply filters on these specified objects.
 
 <p align="center">
-  <img src="./Figures/example.png" width="100%"/>
+  <img src="./Figures/example.png" width="90%"/>
 </p>
 
 However, identifying recurring objects on large amount of images is tedious. If we could make an algorithm to automatically identify the objects and apply image processing methods on them, visual content creators could be freed from repetitive work and focus more on the creations process. To solve the problem, we could roughly divide it into three different stages: Detecting the object and classify it, find the segmentation mask of the object, and do the image processing on the specified parts. The figure below illustrates the process.
@@ -34,7 +34,7 @@ The problem definition of object detection is to determine where the object is l
 
 ## Image Processing
 
-After we find the object in the images, we could do some image processing on the desired area by referring to the segmentation mask of the objects. Some rough ideas could be easily thought out, like blurring the detected parts - this is a common need when processing videos, for instance, in some situations we want to blur all human faces or license plate in the video. Some other image processing methods could also be applied, like the color splash filter we have mentioned above, pixelation, or even the style transfer proposed by Gatys et al. Applying image processing methods seems easy, but it could also be challenging, as we only want to apply it on desired parts of the image, and the processed part should also be consistent with the whole image. I will introduce more about this part in details in the next section.
+After we find the object in the images, we could do some image processing on the desired area by referring to the segmentation mask of the objects. Some rough ideas could be easily thought out, like blurring the detected parts - this is a common need when processing videos, for instance, in some situations we want to blur all human faces or license plates in the video. Some other image processing methods could also be applied, like the color splash filter we have mentioned above, pixelation, or even the style transfer proposed by Gatys et al. Applying image processing methods seems easy, but it could also be challenging, as we only want to apply it on desired parts of the image, and the processed part should also be consistent with the whole image. I will introduce more about this part in details in the next section.
 
 # Method
 
@@ -60,7 +60,7 @@ Pre-trained models of Mask R-CNN could be easily found on the Internet, and thes
   <img src="./Figures/wisc_logo.jpg" width="60%"/>
 </p>
 
-In conclusion, using pre-trained model will possibly cause some problems below:
+In general, using pre-trained model will possibly cause some problems below:
 
 - Misclassify objects into unnecessary categories, which could be removed
 - Low accuracy on the needed categories, which could be improved
@@ -68,11 +68,11 @@ In conclusion, using pre-trained model will possibly cause some problems below:
 
 To solve the problems above, the pre-trained model needs to be find-tuned on the user-specified dataset. When fine-tuning the model, the whole model will be initialized with the weights from the pre-trained model, but the final classification layer will be removed and new classification layers with specified number of neurons (which is corresponding to the number of classes in the user-specified dataset) are attached. Then the new model will be continued training on the new dataset. With the knowledge learned in the pre-trained model, the new model will converge faster on the new dataset.
 
-To find-tune Mask R-CNN, I followed a cascaded process: Firstly only the RPN, the bounding box regression and classification branch, and the mask generator branch will be tuned, and all variables in the backbone network will be froze. Next, some layers in the backbone network will be freed and also be tuned. It is like a cascaded process of several stages and this could provide better performance in practice.
+To find-tune Mask R-CNN, I followed a cascaded process: firstly only the RPN, the bounding box regression and classification branch, and the mask generator branch will be tuned, and all variables in the backbone network will be froze. Next, some layers in the backbone network will be freed and also be tuned. It is like a cascaded process of several stages, and this could provide better performance in practice.
 
 ## Image Processing Methods
 
-I apply four different kinds of image processing methods: color splash, blurring, pixelation and style-transfer. Color splash, blurring and pixelation will commonly be regarded as *traditional* methods, while style-transfer is also a technique utilize neural network. I will introduce them respectively in the following sections.
+I apply four different kinds of image processing methods: color splash, blurring, pixelation and style-transfer. Color splash, blurring and pixelation will commonly be regarded as *traditional* methods, while style-transfer is also a technique utilizing neural network. I will introduce them respectively in the following sections.
 
 ### Color Splash, Pixelation and Blurring
 
@@ -82,7 +82,7 @@ Examples of each of these three effects are illustrated below. Color Splash is a
   <img src="./Figures/effects.png" width="100%"/>
 </p>
 
-Implementing Color Splash filter is straight-forward. Firstly the whole image will be turned into the gray scale, and then the image will be merged with the  original image based on the object segmentation mask. For Pixelation and Blurring I follow the same idea - Firstly apply the image processing method on the whole image, then merge the processed image with the original image based on the object segmentation mask. For pixelation, I simply slide a rectangle window on the image, and replace all pixels in the window with the mean value of them. For blurring the image I apply median filter on the original image to get the blurred image.
+Implementing Color Splash filter is straight-forward. Firstly the whole image will be turned into the gray scale, and then the image will be merged with the  original image based on the object segmentation mask. For Pixelation and Blurring I follow the same idea - apply the image processing method on the whole image, then merge the processed image with the original image based on the object segmentation mask. For pixelation, I simply slide a rectangle window on the image, and replace all pixels in the window with the mean value of them. For blurring the image I apply median filter on the original image to get the blurred image.
 
 ### Style Transfer
 
@@ -92,7 +92,7 @@ Style Transfer is a technique proposed by Gatys et al. at 2015. In paper *A neur
   <img src="./Figures/style_transfer.png" width="100%"/>
 </p>
 
-At the left side, it is the original image; and in the middle there are two style images. If we regard the style distance and the content distance as the loss, and optimize to get a new image which minimize the style distance with the style image and the content distance with the content image, an new image could be got. The new image will keep the content in the original image, while the style will be similar to the style image. At the right side there are two images generated by the style transfer algorithm.
+At the left side, it is the original image; and in the middle there are two style images. If we regard the style distance and the content distance as the loss, and optimize to get a new image which minimize the style distance with the style image and the content distance with the content image, the images on the right side will be generated. The new image will keep the content in the original image, while the style will be similar to the style image.
 
 How do they define the style loss and the content loss? The content distance is straight forward - they define the content loss to be the squared L2 distance between two feature maps, which could be got from a per-trained deep neural network like VGG. The content distance (or the loss) is defined as the formula above. For the style loss, things are a little bit complicated: they firstly compute the correlation between two different feature maps in the same layer, and use the result to construct a correlation matrix G, which is defined below. Then, they compute the squared l2 distance from the correlation matrix G of the style image to the correlation matrix G of the original image, and normalize the result to make sure it keeps the same scale with the content distance.
 
@@ -100,13 +100,13 @@ How do they define the style loss and the content loss? The content distance is 
   <img src="./Figures/style_loss.png" width="80%"/>
 </p>
 
-For generating the final image, in the original paper they start from a random noise image, and optimize the content loss and the style loss to get the final result. However, the whole process is really slow and may take several seconds to get a new image, which is acceptable when processing large amount of images or the video.
+For generating the final image, in the original paper they start from a random noise image, and optimize the content loss and the style loss to get the final result. However, the whole process is really slow and may take several seconds to get a new image, which is not acceptable when processing large amount of images or the video.
 
-To solve the problems above, I follow the instructions in *Perceptual losses for real-time style transfer and super-resolution*, to build a fast neural style transfer network. The network contains several convolution and transpose convolution layers, which is trained on COCO and try to minimize the style loss of every image in the training set with the target style image, while keeping the content of the image unchanged. After training, the network will be able to change the style of any input image to the target style, within one second of running time.
+To solve the problems above, I follow the instructions in *Perceptual losses for real-time style transfer and super-resolution*, to build a fast neural style transfer network. The network contains several convolution and transpose convolution layers, which is trained on COCO dataset and with the target to minimize the style loss of every image in the training set with the target style image, while keeping the content of the image. After training, the network will be able to change the style of any input image to the target style, within one second of running time.
 
 ## Image Mixing
 
-As described above, for applying image processing methods on specified objects in the image, an easy idea is to firstly apply the image processing method on the whole image, and then use the object segmentation mask to merge two images. However, directly using the mask to mix two images will lead to hard edge on the edge of the mask, especially for the case when the processed image is not similar to the original image. An example is illustrated below.
+As described above, for applying image processing methods on specified objects in the image, an easy idea is to firstly apply the image processing method on the whole image, then use the object segmentation mask to mix two images. However, directly using the mask to mix two images will lead to hard edgse on the edges of the mask, especially for the case when the processed image is not similar to the original image. An example is illustrated below.
 
 <p align="center">
   <img src="./Figures/mix_1.png" width="80%"/>
@@ -122,7 +122,7 @@ We have met this situation in hw3. However, as the mask of the two images do not
 
 Visual content creators sometimes may need to process videos. For instance, a TV show provider may need to blur all passersby in the video. We already introduced methods above to apply filters on images, so it seems straight-forward to apply the same method on videos: video is just a sequence of image, so we just need to apply the object detection and image processing methods for each frame.
 
-However, the result provided by Mask R-CNN is not robust, and sometimes the mask generated for one frame will be totally different from the last frame. Here is an example, in which you could see that the mask of the object is flashing in the video.
+However, the result provided by Mask R-CNN is not robust, and sometimes the mask generated for one frame will be totally different from the last frame. Here is an example, in which you could see that the masks of the objects are flashing in the video.
 
 <p align="center">
   <img src="./Figures/video_shaking.gif" width="60%"/>
@@ -136,7 +136,7 @@ To solve this problem, I created a pixel-level stabilizer for stabilizing the ma
 
 The stabilizer works by majority voting. For the example at the top, even the first pixel is true on frame 0, its adjacent frames do not have supporting results. Therefore in the stabilized result, the true pixel will be ignored. For the example at the bottom, the first pixel is true on frame 0, and its adjacent frames do have this corresponding true pixel. Therefore in the final result, the first pixel is also true.
 
-The stabilizer is not suitable for fast changing videos, so it could be disabled in the program for handling that case. In most of the cases it could improve the results of the video, and further results are included in the next section.
+The stabilizer is not suitable for fast changing videos, so it could be disabled in the program for handling that case. In most of the cases it could improve the results of the video, especially when applying on the case illustrated above.
 
 # Results
 
@@ -148,11 +148,11 @@ For fine-tuning the model, I set up running environment on a Google Cloud machin
   <img src="./Figures/mask_improve.png" width="90%"/>
 </p>
 
-On the left side is the result from the per-trained model, in which the hand of the girl is not included in the mask. On the right side is the result from fine-tuned model, in which the mask is much more accurate.
+On the left side is the result from the per-trained model, in which the hand of the girl is not included in the mask. On the right side is the result from fine-tuned model, in which the mask is much more accurate. I provided the fine-tuned model in the links section.
 
 ## Final Result
 
-I applied the model trained only on person class, with video stabilizer enabled and smooth image mixer enabled, to generate some sample results for each image processing methods. The original video is illustrated below, which is clipped from the video in https://grad.wisc.edu/apply/.
+I applied the model trained only on person class, with video stabilizer enabled and smooth image mixer enabled, to generate some sample results for each image processing methods mentioned above. The original video is illustrated below, which is clipped from the video on [grad.wisc.edu/apply](https://grad.wisc.edu/apply/).
 
 <p align="center">
   <img src="./Figures/video_ori.gif" width="60%"/>
@@ -176,7 +176,7 @@ The result of applying **blurring** filter is illustrated below.
   <img src="./Figures/video_blur.gif" width="60%"/>
 </p>
 
-The result of applying style transfer filter is illustrated below. The style image used for training the network could be obtained at [wiki.com](https://en.wikipedia.org/wiki/File:Francis_Picabia,_1913,_Udnie_(Young_American_Girl,_The_Dance),_oil_on_canvas,_290_x_300_cm,_Mus%C3%A9e_National_d%E2%80%99Art_Moderne,_Centre_Georges_Pompidou,_Paris..jpg), and the filter is only applied on the background.
+The result of applying **style transfer** filter is illustrated below. The style image used for training the network could be obtained at [wiki.com](https://en.wikipedia.org/wiki/File:Francis_Picabia,_1913,_Udnie_(Young_American_Girl,_The_Dance),_oil_on_canvas,_290_x_300_cm,_Mus%C3%A9e_National_d%E2%80%99Art_Moderne,_Centre_Georges_Pompidou,_Paris..jpg), and the filter is only applied on the background.
 
 <p align="center">
   <img src="./Figures/video_transfer.gif" width="60%"/>
@@ -188,7 +188,7 @@ The result above looks great. However, there are still several problems which co
 
 - Mask R-CNN is slow. Although it takes less than one second to process an image, it still needs one hour or more time to render an video within several minutes. As we fed the frames to the network one by one, it is somehow reasonable as there are usually 30 frames or 60 frames in a second for a video stream. However, there are some other frameworks for object detection which could run real-time. For instance, Poly-YOLO proposed by P Hurtik is a new framework, which is developed based on YOLOv3, and is able to perform object detection tasks and instance segmentation tasks real time. It could run more than 20 fps on a video stream, which is 50x faster then the Mask R-CNN model. 
 - The style transfer itself is not stable to videos. Fast style-transfer network could generate visually different results for two really similar frames, so part of the video may flashing when applying the style-transfer filter. This problem could also be somehow solve by the video stabilizer by averaging the results between frames, or some more advanced techniques could be applied, for instance, the Video Style Transfer proposed by Manuel Ruder.
-- The video stabilizer could still be tuned. For instance, in fast changing videos the video stabilizer should be disabled, so we could find some metrics to define the distance between two adjacent frames, and only enable the video stabilizer when the distance between these two frames are close enough. Another idea is to use Interaction over Union (IoU) to stabilizer the masks: If the IoU between two masks is high enough, then these two masks could be somehow averaged, otherwise the stabilizer should verify the result.
+- The video stabilizer could still be tuned. For instance, in fast changing videos the video stabilizer should be disabled, so we could find some metrics to define the distance between two adjacent frames, and only enable the video stabilizer when the distance between these two frames is close enough. Another idea is to use Interaction over Union (IoU) to stabilizer the masks: If the IoU between two masks is high enough, then these two masks could be somehow averaged, otherwise the stabilizer should verify the result.
 
 And there are some future work could be done:
 
@@ -196,14 +196,14 @@ And there are some future work could be done:
 - Add more categories for object detection, for instance, the car license plate or the human face, which are really useful in visual content creation.
 - Allow users to specify the objects. Rather than simply block a category of objects in the video, we may create some user interface to allow user select some type of objects in a frame, and then apply and tracking the objects according to users' choice.
 
-I will possibly dig into some of these as when I have free time, as it is a really interesting project and I will keep working on it.
+I will possibly dig into some of these ideas when I have free time, as it is a really interesting project and I will keep working on it.
 
 Thanks again for reading my report!
 
 # Code Source Declaration
 
-- The code of Mask R-CNN is from https://github.com/matterport/Mask_RCNN. I modify some of the code to make it compatible with the project.
-- The code of image mixing is from https://note.nkmk.me/en/python-pillow-composite/.
+- The code of Mask R-CNN is from [https://github.com/matterport/Mask_RCNN](https://github.com/matterport/Mask_RCNN). I modify some of the code to make it compatible with the project.
+- The code of image mixing is from [https://note.nkmk.me/en/python-pillow-composite/](https://note.nkmk.me/en/python-pillow-composite/).
 
 The rest parts of the code is basically implemented by me, including the fast style transfer code. I also referred to some pages on Stack OverFlow when I work on my implementation.
 
@@ -211,7 +211,7 @@ The rest parts of the code is basically implemented by me, including the fast st
 
 At the beginning of the semester, I am working with **Emma Liu (@liu763)**. The *Problem Statement* section and *Why is the Problem Important* section in the **proposal** are written by her, and she helped me fix some grammar mistakes in the mid-term report. The rest of the project, including the code, all the results, the final presentation slides and the video, the mid-term report and the webpage is completely done by me **independently**.
 
-We splitted our work at the beginning of the semester: I will work on the Mask R-CNN part and she will work on YOLO. As there is a pandemic and everything is moved online, it is not easy to sync up with each other. She will possibly include more information about YOLO, to solve the first problem I have mentioned before. Please refer to her page for more information.
+We splitted our work at the beginning of the semester: I will work on the Mask R-CNN part and she will work on YOLO. As there is a pandemic and everything is moved online, it is not easy to sync up with each other. She will possibly include more information about YOLO, to solve the first problem I have mentioned above. Please refer to her page for more information.
 
 # References
 

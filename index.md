@@ -19,7 +19,7 @@ For more information about the link provided here, see the *Work Distribution* a
 Applying filters on a certain kind of recurring objects is a common need in visual content creation. For instance, the image on the left side in the figure below applied color splash filter on balloons, in which all content are turned into grayscale except the balloons; and the image on the right side is clipped from a TV show, in which the passerby is blurred to protect his privacy. In both of these situations, visual content creators need to identify recurring objects when they deal with large amount of images, and apply filters on these specified objects.
 
 <p align="center">
-  <img src="./Figures/example.png" width=60%>
+  <img src="./Figures/example.png" width="60%"/>
 </p>
 
 However, identifying recurring objects on large amount of images is tedious. If we could make an algorithm to automatically identify the objects and apply image processing methods on them, visual content creators could be freed from repetitive work and focus more on the creations process. To solve the problem, we could roughly divide it into three different stages: Detecting the object and classify it, find the segmentation mask of the object, and do the image processing on the specified parts. The figure below illustrates the process.
